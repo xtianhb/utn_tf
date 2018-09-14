@@ -59,7 +59,7 @@ def Rotar(Img, Ang):
 def AddCanvas(Img):
 	
 	Ho,Wo = Img.shape[0:2] # shape(w,h,3) Obtiene W y H antes de procesar
-	#print("Image size: %dx%d" % (Wo, Ho) )
+
 	AR = float(Wo)/float(Ho)   # W/H calcula AR  
 	
 	Ho = random.randint(HEIGHT_OBJ_MIN,HEIGHT_OBJ_MAX)   # nueva altura  
@@ -98,13 +98,13 @@ def Trf_Img(ImgDestPath):
 
 	Img = cv2.imread(ImgDestPath)
 	
-	Img = Rotar(Img, random.randint(-Ang, Ang))
+	#Img = Rotar(Img, random.randint(-Ang, Ang))
 	
 	#Img = AddNoise(Img)
 	
 	Img,Hc,Wc,Ox,Oy = AddCanvas(Img)	
 	
-	Img = AddBlur(Img)
+	#Img = AddBlur(Img)
 	
 	if View:
 		cv2.imshow("Image", Img)

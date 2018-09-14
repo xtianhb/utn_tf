@@ -17,6 +17,8 @@
 ## but I changed it to make it more understandable to me.
 
 
+# python detectar_img.py training/inf_graph/frozen_inference_graph.pb samples/label_map.txt test
+
 # Import packages
 import os
 import cv2
@@ -37,16 +39,18 @@ from utils import label_map_util
 from utils import visualization_utils as vis_util
 
 if len(sys.argv) <2:
-	print("Falta path a model.ckpt")
+	print("Falta path a frozen_inference_graph.pb")
+	print("python detectar_img.py training/inf_graph/frozen_inference_graph.pb samples/label_map.txt test")
 	exit(-1)
 
 if len(sys.argv) <3:
-	print("Falta path a labels.txt")
+	print("Falta path a label_map.txt")
+	print("python detectar_img.py training/inf_graph/frozen_inference_graph.pb samples/label_map.txt test")
 	exit(-1)
 
 if len(sys.argv) <4:
-#	print("Falta nro clases")
-	print("Falta carpeta de imagenes")
+	print("Falta carpeta de test imagenes")
+	print("python detectar_img.py training/inf_graph/frozen_inference_graph.pb samples/label_map.txt test")
 	exit(-1)
 	
 # Path to frozen detection graph .pb file, which contains the model that is used
