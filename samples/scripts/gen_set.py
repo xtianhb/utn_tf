@@ -15,9 +15,9 @@ View=0  #Ver procesos
 NxFoto=10  #Cantidad por foto
 WIDTH_CANVAS=640  #ancho canvas
 HEIGHT_CANVAS=480 #alto canvas
-HEIGHT_OBJ_MIN=int(HEIGHT_CANVAS//8) #Alto foto
-HEIGHT_OBJ_MAX=int(HEIGHT_CANVAS//4) #Alto foto
-Ang=5 #variacion de angulo + y -
+HEIGHT_OBJ_MIN=int(HEIGHT_CANVAS//6) #Alto foto
+HEIGHT_OBJ_MAX=int(HEIGHT_CANVAS//3) #Alto foto
+Ang=10 #variacion de angulo + y -
 Backg=[]
 NBack=0
 ########################################################################
@@ -59,16 +59,13 @@ def Rotar(Img, Ang):
 def AddCanvas(Img):
 	
 	Ho,Wo = Img.shape[0:2] # shape(w,h,3) Obtiene W y H antes de procesar
-
 	AR = float(Wo)/float(Ho)   # W/H calcula AR  
 	
-	Ho = random.randint(HEIGHT_OBJ_MIN,HEIGHT_OBJ_MAX)   # nueva altura  
+	Ho = random.randint(HEIGHT_OBJ_MIN, HEIGHT_OBJ_MAX)   # nueva altura  
 	Wo = int( float(Ho) * AR )  #Nuevo ancho respetando AR 
-	
 	Img = cv2.resize( Img, ( Wo,Ho ) )   # cv2.resize( src, (w,h) ) Escala imagen al nuevo size
 	
 	PathBackg = Backg[random.randint(0,NBackg-1)]
-
 	Canvas = cv2.imread(PathBackg)
 	Hc,Wc = Canvas.shape[0:2]
 	ARc=Wc/Hc
@@ -76,17 +73,25 @@ def AddCanvas(Img):
 		Canvas = cv2.resize(Canvas, (WIDTH_CANVAS, int(WIDTH_CANVAS/ARc)  ))  #Imagen mas grande vacia, canvas
 	elif Hc>HEIGHT_CANVAS:
 		Canvas = cv2.resize(Canvas, (int(HEIGHT_CANVAS/ARc), HEIGHT_CANVAS  ))  #Imagen mas grande vacia, canvas
-		
-	Hc,Wc = Canvas.shape[0:2]
-	Ox=random.randint(1,Wc-Wo-5)  #offset x
-	Oy=random.randint(1,Hc-Ho-5)  #offset y
-	Canvas[Oy:Oy+Img.shape[0], Ox:Ox+Img.shape[1]] = Img   #incrusta imagen chica en canvas
 	
+	Hc,Wc = Canvas.shape[0:2]
+	
+	if 0:
+		Ox=random.randint(0,Wc-Wo)  #offset x
+		Oy=random.randint(0,Hc-Ho)  #offset y
+		Canvas[Oy:Oy+Img.shape[0], Ox:Ox+Img.shape[1]] = Img   #incrusta imagen chica en canvas
+	else:
+		Ox=random.randint(Wo//2,Wc-Wo//2)  #center x
+		Oy=random.randint(Ho//2,Hc-Ho//2)  #center y
+		Img_Mask = np.zeros([Ho, Wo, 3], Img.dtype) 
+		Img_Mask.fill(255)
+		Canvas=cv2.seamlessClone(Img, Canvas, Img_Mask, (Ox,Oy), cv2.NORMAL_CLONE) #MIXED_CLONE #NORMAL_CLONE
+		
 	return Canvas,Ho,Wo,Ox,Oy
 ########################################################################
 def AddNoise(Img):
 	W,H = Img.shape[0:2]
-	Noise =  random.randint(1, 30)*np.random.randn(W, H, 3)
+	Noise =  random.randint(1, 5)*np.random.randn(W, H, 3)
 	Img =  Img.astype("uint8") + Noise.astype("uint8")
 	return Img
 ########################################################################
@@ -95,26 +100,26 @@ def AddBlur(Img):
 	return Img
 ########################################################################
 def Trf_Img(ImgDestPath):
-
-	Img = cv2.imread(ImgDestPath)
 	
+	Img = cv2.imread(ImgDestPath)
+		
 	#Img = Rotar(Img, random.randint(-Ang, Ang))
 	
 	#Img = AddNoise(Img)
 	
-	Img,Hc,Wc,Ox,Oy = AddCanvas(Img)	
+	Img,Ho,Wo,Ox,Oy = AddCanvas(Img)	
 	
 	#Img = AddBlur(Img)
 	
 	if View:
 		cv2.imshow("Image", Img)
-		cv2.waitKey(1)
+		cv2.waitKey(0)
 	
 	cv2.imwrite(ImgDestPath, Img)
 	
 	Hi,Wi = Img.shape[0:2]
 	
-	return Wi,Hi,Wc,Hc,Ox,Oy
+	return Wi,Hi,Wo,Ho,Ox,Oy
 ########################################################################
 def GenXml(XmlDestPath, ImgDestPath, Wi,Hi,Wo,Ho,Ox,Oy, ClassName):
 	
@@ -157,7 +162,7 @@ def GenXml(XmlDestPath, ImgDestPath, Wi,Hi,Wo,Ho,Ox,Oy, ClassName):
 	return
 ########################################################################
 def Main_App():
-	global NxFoto, NBackg, Backg
+	global NxFoto, NBackg, Backg, View
 	
 	print("Inicio")
 	
@@ -175,7 +180,7 @@ def Main_App():
 		print("Falta # fotos por ejemplo")
 		print("python gen_set.py /path/to/src /path/to/dest NFotos")
 		exit(-1)
-		
+	
 	if not os.path.exists(sys.argv[1]):
 		print("No existe el path " + sys.argv[1])
 		exit(-1)
@@ -184,6 +189,9 @@ def Main_App():
 	DestPath = sys.argv[2]
 	NxFoto = int(sys.argv[3])
 	
+	if len(sys.argv)==5:
+		View=int(sys.argv[4])
+		
 	ScriptDir=os.path.split(os.path.realpath(__file__))[0]
 	Backg=glob.glob(ScriptDir+"/backg/*.jpg")
 	NBackg=len(Backg)
@@ -194,11 +202,11 @@ def Main_App():
 		
 	N=0
 	
-	Lista = glob.glob(SourcePath + '/*.jpg')
-	Lista.sort()
-	for ImgFilePath in Lista:
-		
-		ImgName = os.path.split(ImgFilePath)[1] #Se queda con el nombre de la "foto.jpg"
+	ListaLogos = glob.glob(SourcePath + '/*.jpg')
+	ListaLogos.sort()
+	for LogoPath in ListaLogos:
+		print(LogoPath)
+		ImgName = os.path.split(LogoPath)[1] #Se queda con el nombre de la "foto.jpg"
 		ImgName = ImgName.split(".")[0] #Se queda con el nombre de la "foto"
 		ClassName = "utn"
 		
@@ -213,11 +221,11 @@ def Main_App():
 				os.remove(XmlDestPath)
 				pass
 
-			shutil.copy(ImgFilePath, ImgDestPath) # Copia template xml
+			shutil.copy(LogoPath, ImgDestPath) # Copia template xml
 			#shutil.copy(SrcTempXml, XmlDestPath) # Copia template xml
 		
-			Wi,Hi,Wc,Hc,Ox,Oy = Trf_Img(ImgDestPath)
-			GenXml(XmlDestPath, ImgDestPath, Wi,Hi,Wc,Hc,Ox,Oy, ClassName)
+			Wi,Hi,Wo,Ho,Ox,Oy = Trf_Img(ImgDestPath)
+			GenXml(XmlDestPath, ImgDestPath, Wi,Hi,Wo,Ho,Ox,Oy, ClassName)
 		
 			print("Imagen %04d %s" % (N, ImgDestPath))
 			
