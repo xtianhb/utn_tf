@@ -13,10 +13,11 @@ import xml.etree.ElementTree as ET
 ########################################################################
 View=0  #Ver procesos
 NxFoto=10  #Cantidad por foto
-HEIGHT_OBJ=150 #Alto foto
-HEIGHT_CANVAS=800 #alto canvas
-WIDTH_CANVAS=600  #ancho canvas
-Ang=20 #variacion de angulo + y -
+WIDTH_CANVAS=640  #ancho canvas
+HEIGHT_CANVAS=480 #alto canvas
+HEIGHT_OBJ_MIN=int(HEIGHT_CANVAS//10) #Alto foto
+HEIGHT_OBJ_MAX=int(HEIGHT_CANVAS//5) #Alto foto
+Ang=5 #variacion de angulo + y -
 Backg=[]
 NBack=0
 ########################################################################
@@ -61,17 +62,24 @@ def AddCanvas(Img):
 	#print("Image size: %dx%d" % (Wo, Ho) )
 	AR = float(Wo)/float(Ho)   # W/H calcula AR  
 	
-	Ho = HEIGHT_OBJ   # nueva altura fija caracter
-	Wo = int( float(Ho) * AR )  #Nuevo ancho respetando AR caracter
+	Ho = random.randint(HEIGHT_OBJ_MIN,HEIGHT_OBJ_MAX)   # nueva altura  
+	Wo = int( float(Ho) * AR )  #Nuevo ancho respetando AR 
 	
 	Img = cv2.resize( Img, ( Wo,Ho ) )   # cv2.resize( src, (w,h) ) Escala imagen al nuevo size
 	
 	PathBackg = Backg[random.randint(0,NBackg-1)]
 
 	Canvas = cv2.imread(PathBackg)
-	Canvas = cv2.resize(Canvas, (WIDTH_CANVAS, HEIGHT_CANVAS))  #Imagen mas grande vacia, canvas
-	Ox=random.randint(1,WIDTH_CANVAS-Wo-5)  #offset x
-	Oy=random.randint(1,HEIGHT_CANVAS-Ho-5)  #offset y
+	Hc,Wc = Canvas.shape[0:2]
+	ARc=Wc/Hc
+	if Wc>WIDTH_CANVAS:
+		Canvas = cv2.resize(Canvas, (WIDTH_CANVAS, int(WIDTH_CANVAS/ARc)  ))  #Imagen mas grande vacia, canvas
+	elif Hc>HEIGHT_CANVAS:
+		Canvas = cv2.resize(Canvas, (int(HEIGHT_CANVAS/ARc), HEIGHT_CANVAS  ))  #Imagen mas grande vacia, canvas
+		
+	Hc,Wc = Canvas.shape[0:2]
+	Ox=random.randint(1,Wc-Wo-5)  #offset x
+	Oy=random.randint(1,Hc-Ho-5)  #offset y
 	Canvas[Oy:Oy+Img.shape[0], Ox:Ox+Img.shape[1]] = Img   #incrusta imagen chica en canvas
 	
 	return Canvas,Ho,Wo,Ox,Oy
