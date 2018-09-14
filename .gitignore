@@ -1,0 +1,9 @@
+samples/train/*.jpg
+samples/train/*.xml
+samples/train/*.record
+samples/train/*.csv
+samples/eval/*.csv
+samples/train/*.record
+samples/eval/*.record
+*.zip
+training/inf_graph

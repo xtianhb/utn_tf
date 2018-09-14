@@ -1,0 +1,26 @@
+<annotation>
+	<folder>eval</folder>
+	<filename>017.jpg</filename>
+	<path>/home/xtian/cvia/samples/utn/eval/017.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>800</width>
+		<height>601</height>
+		<depth>1</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>utn</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>66</xmin>
+			<ymin>193</ymin>
+			<xmax>213</xmax>
+			<ymax>363</ymax>
+		</bndbox>
+	</object>
+</annotation>
