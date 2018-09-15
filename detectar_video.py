@@ -141,8 +141,8 @@ while(True):
     for Score in scores[0]:
         if Score>UMBRAL:
             
-            Cx=int(W*(boxes[0][i][0]+boxes[0][i][2])/2)
-            Cy=int(W*(boxes[0][i][1]+boxes[0][i][3])/2)
+            Cx=int(W*(boxes[0][i][1]+boxes[0][i][3])/2)
+            Cy=int(H*(boxes[0][i][0]+boxes[0][i][2])/2)
             ResTxt="Detect @ X=" +str(Cx) +" Y="+str(Cy)
             print(ResTxt)
             cv2.putText(frame,ResTxt, (0,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255),2)
