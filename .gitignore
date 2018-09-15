@@ -5,6 +5,7 @@ samples/train/*.csv
 samples/eval/*.csv
 samples/train/*.record
 samples/eval/*.record
+samples/*.record
 training/inf_graph
 *.zip
 

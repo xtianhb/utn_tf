@@ -16,6 +16,7 @@
 
 ## but I changed it to make it more understandable to me.
 
+# python detectar_video.py training/inf_graph/frozen_inference_graph.pb samples/label_map.txt
 
 # Import packages
 import os
@@ -35,16 +36,19 @@ from utils import visualization_utils as vis_util
 
 if len(sys.argv) <2:
 	print("Falta path a model.ckpt")
+	print("python detectar_video.py training/inf_graph/frozen_inference_graph.pb samples/label_map.txt 0.9")
 	exit(-1)
 
 if len(sys.argv) <3:
 	print("Falta path a labels.txt")
+	print("python detectar_video.py training/inf_graph/frozen_inference_graph.pb samples/label_map.txt 0.9")
 	exit(-1)
 
 if len(sys.argv) <4:
-	print("Falta nro clases")
+	print("Falta umbral")
+	print("python detectar_video.py training/inf_graph/frozen_inference_graph.pb samples/label_map.txt 0.9")
 	exit(-1)
-	
+    	
 # Path to frozen detection graph .pb file, which contains the model that is used
 # for object detection.
 PATH_TO_CKPT = sys.argv[1]
@@ -52,8 +56,11 @@ PATH_TO_CKPT = sys.argv[1]
 # Path to label map file
 PATH_TO_LABELS = sys.argv[2]
 
+#Umbral para detectar
+UMBRAL = float(sys.argv[3])
+
 # Number of classes the object detector can identify
-NUM_CLASSES = int(sys.argv[3])
+NUM_CLASSES = 1
 
 ## Load the label map.
 # Label maps map indices to category names, so that when our convolution
@@ -97,6 +104,8 @@ num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 video = cv2.VideoCapture(0)
 ret = video.set(3,640)
 ret = video.set(4,480)
+W=640
+H=480
 
 while(True):
 
@@ -112,7 +121,7 @@ while(True):
         feed_dict={image_tensor: frame_expanded})
     T2=time.time()
 	
-    print("T=%d ms" % (1000*(T2-T1)))
+    #print("T=%d ms" % (1000*(T2-T1)))
 	
     # Draw the results of the detection (aka 'visulaize the results')
     vis_util.visualize_boxes_and_labels_on_image_array(
@@ -122,11 +131,26 @@ while(True):
         np.squeeze(scores),
         category_index,
         use_normalized_coordinates=True,
-        line_thickness=5,
-        min_score_thresh=0.85)
+        line_thickness=4,
+        min_score_thresh=UMBRAL)
 	
+    cv2.putText(frame,'Q: Salir', (0,50), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,255),2)
+    
+    i=0
+    ND=0
+    for Score in scores[0]:
+        if Score>UMBRAL:
+            
+            Cx=int(W*(boxes[0][i][0]+boxes[0][i][2])/2)
+            Cy=int(W*(boxes[0][i][1]+boxes[0][i][3])/2)
+            ResTxt="Detect @ X=" +str(Cx) +" Y="+str(Cy)
+            print(ResTxt)
+            cv2.putText(frame,ResTxt, (0,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255),2)
+            break
+        i+=1
+
     # All the results have been drawn on the frame, so it's time to display it.
-    cv2.imshow('Object detector', frame)
+    cv2.imshow('UTN DETECTOR', frame)
 
     # Press 'q' to quit
     if cv2.waitKey(1) == ord('q'):
@@ -136,4 +160,4 @@ while(True):
 video.release()
 cv2.destroyAllWindows()
 
-print("End")
+print("FIN")

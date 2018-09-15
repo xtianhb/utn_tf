@@ -10,13 +10,14 @@ import xml.etree.ElementTree as ET
 #Lee una carpeta con fotos recortadas y genera dataset con fotos incrustadas en fondo
 #cd path/to/annotating
 #python gen_set.py Src Dest 10
+#python scripts/gen_set.py raw train 1
 ########################################################################
 View=0  #Ver procesos
 NxFoto=10  #Cantidad por foto
 WIDTH_CANVAS=640  #ancho canvas
 HEIGHT_CANVAS=480 #alto canvas
-HEIGHT_OBJ_MIN=int(HEIGHT_CANVAS//6) #Alto foto
-HEIGHT_OBJ_MAX=int(HEIGHT_CANVAS//3) #Alto foto
+HEIGHT_OBJ_MIN=int(HEIGHT_CANVAS//8.0) #Alto foto
+HEIGHT_OBJ_MAX=int(HEIGHT_CANVAS/2.5) #Alto foto
 Ang=10 #variacion de angulo + y -
 Backg=[]
 NBack=0
@@ -87,27 +88,30 @@ def AddCanvas(Img):
 		Oy=Cy-Ho//2
 		Img_Mask = np.zeros([Ho, Wo, 3], Img.dtype) 
 		Img_Mask.fill(255)
-		Canvas=cv2.seamlessClone(Img, Canvas, Img_Mask, (Cx,Cy), cv2.NORMAL_CLONE) #MIXED_CLONE #NORMAL_CLONE
+		if  random.random()>0.6:
+			Canvas=cv2.seamlessClone(Img, Canvas, Img_Mask, (Cx,Cy), cv2.MIXED_CLONE) 
+		else:
+			Canvas=cv2.seamlessClone(Img, Canvas, Img_Mask, (Cx,Cy), cv2.NORMAL_CLONE) 
 		
 	return Canvas,Ho,Wo,Ox,Oy
 ########################################################################
 def AddNoise(Img):
-	W,H = Img.shape[0:2]
-	Noise =  random.randint(1, 5)*np.random.randn(W, H, 3)
+	W,H,C = Img.shape
+	Noise = np.random.randn(W, H, 3)//2
 	Img =  Img.astype("uint8") + Noise.astype("uint8")
 	return Img
 ########################################################################
 def AddBlur(Img):
-	Img=cv2.blur(Img,(3,3))
+	Img=cv2.blur(Img,(3,3),3)
 	return Img
 ########################################################################
 def Trf_Img(ImgDestPath):
 	
 	Img = cv2.imread(ImgDestPath)
 		
-	#Img = Rotar(Img, random.randint(-Ang, Ang))
+	Img = Rotar(Img, random.randint(-Ang, Ang))
 	
-	#Img = AddNoise(Img)
+	Img = AddNoise(Img)
 	
 	Img,Ho,Wo,Ox,Oy = AddCanvas(Img)	
 	
@@ -207,7 +211,6 @@ def Main_App():
 	ListaLogos = glob.glob(SourcePath + '/*.jpg')
 	ListaLogos.sort()
 	for LogoPath in ListaLogos:
-		print(LogoPath)
 		ImgName = os.path.split(LogoPath)[1] #Se queda con el nombre de la "foto.jpg"
 		ImgName = ImgName.split(".")[0] #Se queda con el nombre de la "foto"
 		ClassName = "utn"

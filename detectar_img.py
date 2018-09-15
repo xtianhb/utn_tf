@@ -137,7 +137,7 @@ for ImgPath in ImgsPaths:
         category_index,
         use_normalized_coordinates=True,
         line_thickness=2,
-        min_score_thresh=0.4)
+        min_score_thresh=0.5)
 	
     img_cvt=cv2.cvtColor(Image_np, cv2.COLOR_BGR2RGB)
     plt.imshow(img_cvt)
