@@ -82,13 +82,13 @@ def AddCanvas(Img):
 		Oy=random.randint(0,Hc-Ho)  #offset y
 		Canvas[Oy:Oy+Img.shape[0], Ox:Ox+Img.shape[1]] = Img   #incrusta imagen chica en canvas
 	else:
-		Cx=random.randint(Wo//2,Wc-Wo//2)  #center x
-		Cy=random.randint(Ho//2,Hc-Ho//2)  #center y
-		Ox=Cx-Wo//2
-		Oy=Cy-Ho//2
+		Cx=random.randint(Wo//2+1,Wc-Wo//2-1)  #center x
+		Cy=random.randint(Ho//2+1,Hc-Ho//2-1)  #center y
+		Ox=Cx-Wo//2-1
+		Oy=Cy-Ho//2-1
 		Img_Mask = np.zeros([Ho, Wo, 3], Img.dtype) 
 		Img_Mask.fill(255)
-		if  random.random()>0.6:
+		if  random.random()>0.5:
 			Canvas=cv2.seamlessClone(Img, Canvas, Img_Mask, (Cx,Cy), cv2.MIXED_CLONE) 
 		else:
 			Canvas=cv2.seamlessClone(Img, Canvas, Img_Mask, (Cx,Cy), cv2.NORMAL_CLONE) 
