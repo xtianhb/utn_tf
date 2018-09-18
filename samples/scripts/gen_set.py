@@ -16,9 +16,9 @@ View=0  #Ver procesos
 NxFoto=10  #Cantidad por foto
 WIDTH_CANVAS=640  #ancho canvas
 HEIGHT_CANVAS=480 #alto canvas
-HEIGHT_OBJ_MIN=int(HEIGHT_CANVAS//8.0) #Alto foto
-HEIGHT_OBJ_MAX=int(HEIGHT_CANVAS/2.5) #Alto foto
-Ang=10 #variacion de angulo + y -
+HEIGHT_OBJ_MIN=int(HEIGHT_CANVAS//10.0) #Alto foto
+HEIGHT_OBJ_MAX=int(HEIGHT_CANVAS//2.5) #Alto foto
+Ang=90 #variacion de angulo + y -
 Backg=[]
 NBack=0
 ########################################################################
